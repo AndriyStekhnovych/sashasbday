@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Для Моєї Королеви 🌸</title>
+    <!-- Підключення шрифтів: Елегантний серіф + Рукописний (Caveat) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;0,800;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --peony-deep: #CA3342;      /* Насичений бордово-малиновий */
+            --peony-bright: #E63956;    /* Яскрава фуксія/півонія */
+            --peony-soft: #FFD3DA;      /* Ніжно-рожевий */
+            --bg-light: #FFF0F2;        /* Пудровий фон сайту */
+            --text-dark: #3D0A11;
+            --white: #FFFFFF;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2 { font-family: 'Playfair Display', serif; }
+
+        /* --- ФОНОПАД ПЕЛЮСТОК (Залишається незмінним) --- */
+        .petals-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .falling-petal {
+            position: absolute;
+            user-select: none;
+            pointer-events: none;
+            opacity: 0.7;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg) scale(0.8); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(110vh) rotate(360deg) scale(1.2); opacity: 0; }
+        }
+
+        /* --- ГОЛОВНИЙ ЕКРАН --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle, #FFF9FA 0%, var(--bg-light) 100%);
+            position: relative;
+            padding: 20px;
+        }
+
+        .hero-title {
+            font-size: clamp(2.3rem, 7vw, 4.8rem);
+            color: var(--peony-deep);
+            margin-bottom: 20px;
+            z-index: 2;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--peony-bright);
+            font-weight: 600;
+            z-index: 2;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.5s;
+        }
+
+        /* --- ЕФЕКТНИЙ АВТО-СЛАЙДЕР «РОЗКВІТ» (3D Cinematic) --- */
+        .gallery-section {
+            padding: 100px 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--white);
+            z-index: 2;
+        }
+
+        .gallery-title {
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            color: var(--peony-deep);
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .bloom-slider {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            aspect-ratio: 3/4;
+            perspective: 1200px;
+        }
+
+        /* Стиль карток з ефектом кінематографічної появи */
+        .photo-card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 6px solid var(--white);
+            box-shadow: 0 30px 60px rgba(61, 10, 17, 0.15);
+            background: var(--peony-soft);
+            
+            /* Початковий стан: прихована в глибині */
+            opacity: 0;
+            transform: scale(0.6) translateZ(-200px) rotateY(-15deg);
+            transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 1s ease;
+            z-index: 1;
+        }
+
+        /* Активна картка (виривається вперед, розквітає) */
+        .photo-card.active {
+            opacity: 1;
+            transform: scale(1) translateZ(0) rotateY(0deg);
+            z-index: 10;
+        }
+
+        /* Попередня картка (м'яко розчиняється вбік) */
+        .photo-card.leaving {
+            opacity: 0;
+            transform: scale(1.1) translateZ(100px) rotate(5deg);
+            z-index: 5;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Індикатори точок знизу слайдера */
+        .dots-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--peony-soft);
+            transition: 0.3s ease;
+        }
+
+        .dot.active {
+            background: var(--peony-deep);
+            transform: scale(1.3);
+        }
+
+        /* --- СЕКЦІЯ РОЗУМНОГО ЛИСТА ВІД РУКИ --- */
+        .letter-section {
+            padding: 120px 20px;
+            background: var(--bg-light);
+            z-index: 2;
+            position: relative;
+        }
+
+        .letter-card {
+            max-width: 700px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: clamp(30px, 7vw, 60px) clamp(20px, 5vw, 45px);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(202, 51, 66, 0.06);
+            border-top: 5px solid var(--peony-bright);
+            position: relative;
+        }
+
+        .letter-text {
+            font-family: 'Caveat', cursive;
+            font-size: clamp(1.6rem, 5vw, 2.2rem);
+            line-height: 1.4;
+            color: var(--peony-deep);
+            min-height: 320px;
+            white-space: pre-wrap;
+            font-weight: 700;
+        }
+
+        /* Ефект пера-маркера */
+        .letter-text::after {
+            content: '🌸';
+            font-size: 1.3rem;
+            display: inline-block;
+            margin-left: 5px;
+            animation: blink 0.8s infinite;
+        }
+        .letter-text.typing-done::after {
+            display: none;
+        }
+
+        /* --- СЕКЦІЯ ВІДЕО ОПТИМІЗОВАНА ДЛЯ ПК ТА IPHONE 13 --- */
+        .video-section {
+            padding: 100px 20px;
+            text-align: center;
+            background: var(--white);
+            z-index: 2;
+            position: relative;
+        }
+
+        .video-container {
+            max-width: 850px;
+            margin: 40px auto 0 auto;
+            aspect-ratio: 16 / 9;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 6px solid var(--bg-light);
+            box-shadow: 0 35px 70px rgba(61, 10, 17, 0.12);
+            position: relative;
+            background: #000;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border: 0;
+        }
+
+        footer {
+            padding: 80px 20px;
+            text-align: center;
+            background: var(--bg-light);
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Адаптивність під iPhone 13 */
+        @media (max-width: 768px) {
+            .gallery-section, .video-section, .letter-section { padding: 70px 16px; }
+            .bloom-slider { max-width: 320px; }
+            .video-container { border-radius: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Контейнер для нескінченного листопаду пелюсток півонії -->
+    <div class="petals-container" id="globalPetals"></div>
+
+    <!-- ГОЛОВНИЙ ЕКРАН -->
+    <section class="hero">
+        <h1 class="hero-title">З Днем народження!</h1>
+        <p class="hero-subtitle">Залишайся такою ж доброю квіткою серед колючого терну</p>
+    </section>
+
+    <!-- АВТОМАТИЧНИЙ 3D-СЛАЙДЕР -->
+    <section class="gallery-section">
+        <h2 class="gallery-title">Наші щасливі миті</h2>
+        
+        <div class="bloom-slider">
+            <!-- Твої фотокартки (Заміни джерела src на власні файли) -->
+            <div class="photo-card active"><img src="images/1.jpg" alt="Момент 1"></div>
+            <div class="photo-card"><img src="images/2.jpg" alt="Момент 2"></div>
+            <div class="photo-card"><img src="images/3.jpg" alt="Момент 3"></div>
+            <div class="photo-card"><img src="images/4.jpg" alt="Момент 4"></div>
+        </div>
+
+        <!-- Крапочки навігації під слайдером -->
+        <div class="dots-container" id="dotsContainer"></div>
+    </section>
+
+    <!-- СЕКЦІЯ РОЗУМНОГО НАПИСАННЯ ЛИСТА -->
+    <section class="letter-section" id="letterSection">
+        <div class="letter-card">
+            <!-- Сюди скрипт почне друкувати літери тільки під час скролу -->
+            <div class="letter-text" id="typingText"></div>
+        </div>
+    </section>
+
+    <!-- СЕКЦІЯ З ВІДЕО (МОМЕНТ З ФІЛЬМУ) -->
+    <section class="video-section">
+        <h2 style="color: var(--peony-deep); font-size: clamp(1.8rem, 5vw, 2.4rem);">Ця сцена нагадує про нас...</h2>
+        <div class="video-container">
+           
+            <iframe width="951" height="535" src="https://www.youtube.com/embed/_iZ-vMCeH9U" title="Paris, France 🇫🇷 | 4K Drone Footage (With Subtitles)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+    </section>
+
+    <!-- ФУТЕР -->
+    <footer>
+        <h2 style="font-size: clamp(2rem, 6vw, 3rem); color: var(--peony-deep);">Love you ❤️</h2>
+    </footer>
+
+    <script>
+        /* --- 1. СТВОРЕННЯ ЕФЕКТУ ЖИВИХ ПЕЛЮСТОК НА ФОНІ --- */
+        function initFallingPetals() {
+            const container = document.getElementById('globalPetals');
+            const icons = ['🌸', '🌺', '🌹', '✨'];
+            
+            // Створюємо одну пелюстку
+            function spawnPetal() {
+                const petal = document.createElement('div');
+                petal.classList.add('falling-petal');
+                petal.innerHTML = icons[Math.floor(Math.random() * icons.length)];
+                petal.style.left = Math.random() * 100 + 'vw';
+                petal.style.fontSize = Math.random() * 20 + 12 + 'px';
+                
+                const duration = Math.random() * 6 + 6; // тривалість падіння від 6 до 12 сек
+                petal.style.animationDuration = duration + 's';
+                
+                container.appendChild(petal);
+                setTimeout(() => { petal.remove(); }, duration * 1000);
+            }
+
+            // Генеруємо пелюстки кожні 350 мс
+            setInterval(spawnPetal, 350);
+        }
+        initFallingPetals();
+
+
+        /* --- 2. ЕФЕКТНИЙ АВТОМАТИЧНИЙ 3D-СЛАЙДЕР --- */
+        let currentIdx = 0;
+        const cards = document.querySelectorAll('.photo-card');
+        const dotsContainer = document.getElementById('dotsContainer');
+
+        // Створюємо крапочки динамічно залежно від кількості фото
+        cards.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (i === 0) dot.classList.add('active');
+            dotsContainer.appendChild(dot);
+        });
+        const dots = document.querySelectorAll('.dot');
+
+        function rotateSlider() {
+            const prevIdx = currentIdx;
+            cards[prevIdx].classList.remove('active');
+            cards[prevIdx].classList.add('leaving');
+
+            // Очищуємо попередню картку після закінчення CSS анімації
+            setTimeout(() => {
+                cards[prevIdx].classList.remove('leaving');
+            }, 1000);
+
+            // Перемикаємо на наступний слайд
+            currentIdx = (currentIdx + 1) % cards.length;
+            
+            cards[currentIdx].classList.add('active');
+            
+            // Оновлюємо активну крапку
+            dots.forEach(d => d.classList.remove('active'));
+            dots[currentIdx].classList.add('active');
+        }
+
+        // Автоматичне перемикання кожні 4 секунди (4000мс)
+        setInterval(rotateSlider, 4000);
+
+
+        /* --- 3. РОЗУМНА АНІМАЦІЯ ЛИСТА (ЗАПУСК ПРИ ДОГОРТАННІ) --- */
+        // Твій текст листа. Символи \n означають перенесення рядка
+        const textToType = `Дорога Сашо(я готуюсь до НМТ, тому кличний),\n Вітаю тебе з Днем народження! Бажаю міцного-міцного здоров'я, щастя, сімейного затишку, вірних друзів та всього-всього найкращого. Я вдячний тобі за всі щасливі моменти, розділені поруч. Бери від життя максимум. Не забувай, що для мене ти ще досі та сама півторашка 12 рочків і не зазнавайся.\n\nТвій, Андрій`;
+
+        let charIdx = 0;
+        let isTypingStarted = false;
+        const textTarget = document.getElementById('typingText');
+        const sectionTarget = document.getElementById('letterSection');
+
+        function startTypingEffect() {
+            if (charIdx < textToType.length) {
+                textTarget.textContent += textToType.charAt(charIdx);
+                charIdx++;
+                setTimeout(startTypingEffect, 45); // Швидкість друку однієї літери
+            } else {
+                textTarget.classList.add('typing-done');
+            }
+        }
+
+        // Використовуємо професійний IntersectionObserver для відстеження скролу
+        const scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // Якщо користувач доскролив і секцію видно на 25% екрану
+                if (entry.isIntersecting && !isTypingStarted) {
+                    isTypingStarted = true;
+                    setTimeout(startTypingEffect, 400); // Легка затримка для краси
+                }
+            });
+        }, { threshold: 0.25 });
+
+        scrollObserver.observe(sectionTarget);
+    </script>
+</body>
+</html>
